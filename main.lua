@@ -43,20 +43,22 @@ Library.ToggleKey = Enum.KeyCode.RightControl
 -- THEME
 -- ═══════════════════════════════════════════════════════════════
 Library.Theme = {
-    Background = Color3.fromRGB(18, 18, 22),
-    Secondary = Color3.fromRGB(25, 25, 32),
-    Tertiary = Color3.fromRGB(35, 35, 45),
-    Border = Color3.fromRGB(55, 55, 65),
+    -- Pure dark modern colors
+    Background = Color3.fromRGB(8, 8, 12),
+    Secondary = Color3.fromRGB(14, 14, 20),
+    Tertiary = Color3.fromRGB(22, 22, 30),
+    Border = Color3.fromRGB(40, 40, 50),
     Text = Color3.fromRGB(255, 255, 255),
-    TextDim = Color3.fromRGB(140, 140, 160),
+    TextDim = Color3.fromRGB(120, 120, 140),
     Accent = Color3.fromRGB(0, 255, 136),
-    AccentDim = Color3.fromRGB(0, 204, 106),
-    Error = Color3.fromRGB(255, 85, 100),
-    Warning = Color3.fromRGB(255, 190, 80),
+    AccentDim = Color3.fromRGB(0, 200, 100),
+    Error = Color3.fromRGB(255, 75, 85),
+    Warning = Color3.fromRGB(255, 180, 60),
     
     -- Glass effect settings
-    GlassTransparency = 0.15,
-    GlassTransparencySecondary = 0.25
+    GlassEnabled = true,
+    GlassTransparency = 0.12,
+    GlassTransparencySecondary = 0.2
 }
 
 -- ═══════════════════════════════════════════════════════════════
@@ -638,55 +640,18 @@ function Library:CreateWindow(options)
 end
 
 -- ═══════════════════════════════════════════════════════════════
--- NOTIFY
+-- TOGGLE GLASS EFFECT
 -- ═══════════════════════════════════════════════════════════════
-function Library:Notify(options)
-    options = options or {}
-    local title = options.Title or "Notification"
-    local content = options.Content or ""
-    local duration = options.Duration or 3
-    local notifType = options.Type or "info"
-    
-    self:Init()
-    
-    local typeColors = {success = self.Theme.Accent, error = self.Theme.Error, warning = self.Theme.Warning, info = Color3.fromRGB(70, 180, 255)}
-    local accentColor = typeColors[notifType] or typeColors.info
-    
-    local NotifContainer = self.ScreenGui:FindFirstChild("Notifications")
-    if not NotifContainer then
-        NotifContainer = Create("Frame", {Name = "Notifications", AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -20, 0, 20), Size = UDim2.new(0, 280, 1, -40), BackgroundTransparency = 1, Parent = self.ScreenGui})
-        Create("UIListLayout", {Padding = UDim.new(0, 8), HorizontalAlignment = Enum.HorizontalAlignment.Right, VerticalAlignment = Enum.VerticalAlignment.Top, SortOrder = Enum.SortOrder.LayoutOrder, Parent = NotifContainer})
+function Library:SetGlassEnabled(enabled)
+    self.Theme.GlassEnabled = enabled
+    -- Update transparency values based on setting
+    if enabled then
+        self.Theme.GlassTransparency = 0.12
+        self.Theme.GlassTransparencySecondary = 0.2
+    else
+        self.Theme.GlassTransparency = 0
+        self.Theme.GlassTransparencySecondary = 0
     end
-    
-    local Notif = Create("Frame", {Size = UDim2.new(1, 0, 0, 0), BackgroundColor3 = self.Theme.Background, BackgroundTransparency = 1, ClipsDescendants = true, Parent = NotifContainer})
-    AddCorner(Notif, 10)
-    AddStroke(Notif, self.Theme.Border, 1)
-    
-    -- Accent bar with glow effect
-    local AccentBar = Create("Frame", {Size = UDim2.new(0, 3, 1, 0), BackgroundColor3 = accentColor, BorderSizePixel = 0, Parent = Notif})
-    AddCorner(AccentBar, 2)
-    
-    Create("TextLabel", {Position = UDim2.new(0, 16, 0, 12), Size = UDim2.new(1, -26, 0, 18), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, Text = title, TextColor3 = self.Theme.Text, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, Parent = Notif})
-    if content ~= "" then Create("TextLabel", {Position = UDim2.new(0, 16, 0, 30), Size = UDim2.new(1, -26, 0, 20), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = content, TextColor3 = self.Theme.TextDim, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true, Parent = Notif}) end
-    
-    local textHeight = content ~= "" and 22 or 0
-    local totalHeight = 52 + textHeight
-    
-    local ProgressBG = Create("Frame", {AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 16, 1, -10), Size = UDim2.new(1, -32, 0, 3), BackgroundColor3 = self.Theme.Tertiary, BackgroundTransparency = 0.5, Parent = Notif})
-    AddCorner(ProgressBG, 2)
-    local Progress = Create("Frame", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = accentColor, Parent = ProgressBG})
-    AddCorner(Progress, 2)
-    
-    -- Animate with glass transparency
-    Tween(Notif, {Size = UDim2.new(1, 0, 0, totalHeight), BackgroundTransparency = self.Theme.GlassTransparency}, 0.3)
-    task.delay(0.3, function() TweenService:Create(Progress, TweenInfo.new(duration, Enum.EasingStyle.Linear), {Size = UDim2.new(0, 0, 1, 0)}):Play() end)
-    task.delay(duration + 0.3, function()
-        local hideTween = Tween(Notif, {Size = UDim2.new(1, 0, 0, 0), BackgroundTransparency = 1}, 0.3)
-        hideTween.Completed:Wait()
-        Notif:Destroy()
-    end)
-    
-    return Notif
 end
 
 return Library
