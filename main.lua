@@ -43,16 +43,20 @@ Library.ToggleKey = Enum.KeyCode.RightControl
 -- THEME
 -- ═══════════════════════════════════════════════════════════════
 Library.Theme = {
-    Background = Color3.fromRGB(13, 13, 13),
-    Secondary = Color3.fromRGB(20, 20, 20),
-    Tertiary = Color3.fromRGB(26, 26, 26),
-    Border = Color3.fromRGB(42, 42, 42),
+    Background = Color3.fromRGB(18, 18, 22),
+    Secondary = Color3.fromRGB(25, 25, 32),
+    Tertiary = Color3.fromRGB(35, 35, 45),
+    Border = Color3.fromRGB(55, 55, 65),
     Text = Color3.fromRGB(255, 255, 255),
-    TextDim = Color3.fromRGB(160, 160, 160),
+    TextDim = Color3.fromRGB(140, 140, 160),
     Accent = Color3.fromRGB(0, 255, 136),
     AccentDim = Color3.fromRGB(0, 204, 106),
-    Error = Color3.fromRGB(255, 71, 87),
-    Warning = Color3.fromRGB(255, 179, 71)
+    Error = Color3.fromRGB(255, 85, 100),
+    Warning = Color3.fromRGB(255, 190, 80),
+    
+    -- Glass effect settings
+    GlassTransparency = 0.15,
+    GlassTransparencySecondary = 0.25
 }
 
 -- ═══════════════════════════════════════════════════════════════
@@ -166,17 +170,19 @@ function Library:CreateWindow(options)
     
     local Window = {Tabs = {}, ActiveTab = nil, Minimized = false, FullSize = size}
     
-    -- Main Frame
+    -- Main Frame with Glass Effect
     Window.Frame = Create("Frame", {
         Name = "Window",
         Size = size,
         Position = UDim2.new(0.5, -size.X.Offset/2, 0.5, -size.Y.Offset/2),
         BackgroundColor3 = self.Theme.Background,
+        BackgroundTransparency = self.Theme.GlassTransparency,
         BorderSizePixel = 0,
+        ClipsDescendants = true,
         Parent = self.ScreenGui
     })
-    AddCorner(Window.Frame, 10)
-    AddStroke(Window.Frame, self.Theme.Border)
+    AddCorner(Window.Frame, 12)
+    AddStroke(Window.Frame, self.Theme.Border, 1.5)
     
     Window.OriginalPos = Window.Frame.Position
     
@@ -308,17 +314,19 @@ function Library:CreateWindow(options)
         Parent = TitleBar
     })
     
-    -- Sidebar
+    -- Sidebar with Glass Effect
     local Sidebar = Create("Frame", {
+        Name = "Sidebar",
         Position = UDim2.new(0, 0, 0, 41),
         Size = UDim2.new(0, 140, 1, -41),
         BackgroundColor3 = self.Theme.Secondary,
+        BackgroundTransparency = self.Theme.GlassTransparencySecondary,
         BorderSizePixel = 0,
         Parent = Window.Frame
     })
-    AddCorner(Sidebar, 10)
-    Create("Frame", {Position = UDim2.new(1, -10, 0, 0), Size = UDim2.new(0, 10, 1, 0), BackgroundColor3 = self.Theme.Secondary, BorderSizePixel = 0, Parent = Sidebar})
-    Create("Frame", {Position = UDim2.new(0, 0, 0, 0), Size = UDim2.new(0, 10, 0, 10), BackgroundColor3 = self.Theme.Secondary, BorderSizePixel = 0, Parent = Sidebar})
+    AddCorner(Sidebar, 12)
+    Create("Frame", {Position = UDim2.new(1, -12, 0, 0), Size = UDim2.new(0, 12, 1, 0), BackgroundColor3 = self.Theme.Secondary, BackgroundTransparency = self.Theme.GlassTransparencySecondary, BorderSizePixel = 0, Parent = Sidebar})
+    Create("Frame", {Position = UDim2.new(0, 0, 0, 0), Size = UDim2.new(0, 12, 0, 12), BackgroundColor3 = self.Theme.Secondary, BackgroundTransparency = self.Theme.GlassTransparencySecondary, BorderSizePixel = 0, Parent = Sidebar})
     
     -- Tab Container
     local TabContainer = Create("ScrollingFrame", {
@@ -451,8 +459,8 @@ function Library:CreateWindow(options)
         
         function Tab:CreateButton(opts)
             opts = opts or {}
-            local Container = Create("Frame", {Size = UDim2.new(1, 0, 0, 36), BackgroundColor3 = lib.Theme.Secondary, Parent = Tab.Content})
-            AddCorner(Container, 6)
+            local Container = Create("Frame", {Size = UDim2.new(1, 0, 0, 38), BackgroundColor3 = lib.Theme.Secondary, BackgroundTransparency = lib.Theme.GlassTransparencySecondary, Parent = Tab.Content})
+            AddCorner(Container, 8)
             local Btn = Create("TextButton", {Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Text = "", Parent = Container})
             Create("TextLabel", {Position = UDim2.new(0, 12, 0, 0), Size = UDim2.new(1, -24, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = opts.Name or "Button", TextColor3 = lib.Theme.Text, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Parent = Container})
             Btn.MouseEnter:Connect(function() Tween(Container, {BackgroundColor3 = lib.Theme.Tertiary}) end)
@@ -469,8 +477,8 @@ function Library:CreateWindow(options)
         function Tab:CreateToggle(opts)
             opts = opts or {}
             local toggled = opts.Default or false
-            local Container = Create("Frame", {Size = UDim2.new(1, 0, 0, 36), BackgroundColor3 = lib.Theme.Secondary, Parent = Tab.Content})
-            AddCorner(Container, 6)
+            local Container = Create("Frame", {Size = UDim2.new(1, 0, 0, 38), BackgroundColor3 = lib.Theme.Secondary, BackgroundTransparency = lib.Theme.GlassTransparencySecondary, Parent = Tab.Content})
+            AddCorner(Container, 8)
             Create("TextLabel", {Position = UDim2.new(0, 12, 0, 0), Size = UDim2.new(1, -70, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = opts.Name or "Toggle", TextColor3 = lib.Theme.Text, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Parent = Container})
             local ToggleFrame = Create("Frame", {AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -12, 0.5, 0), Size = UDim2.new(0, 40, 0, 22), BackgroundColor3 = toggled and lib.Theme.Accent or lib.Theme.Tertiary, Parent = Container})
             AddCorner(ToggleFrame, 11)
@@ -491,8 +499,8 @@ function Library:CreateWindow(options)
             local min, max, default = opts.Min or 0, opts.Max or 100, opts.Default or opts.Min or 0
             local increment = opts.Increment or 1
             local value = default
-            local Container = Create("Frame", {Size = UDim2.new(1, 0, 0, 50), BackgroundColor3 = lib.Theme.Secondary, Parent = Tab.Content})
-            AddCorner(Container, 6)
+            local Container = Create("Frame", {Size = UDim2.new(1, 0, 0, 52), BackgroundColor3 = lib.Theme.Secondary, BackgroundTransparency = lib.Theme.GlassTransparencySecondary, Parent = Tab.Content})
+            AddCorner(Container, 8)
             Create("TextLabel", {Position = UDim2.new(0, 12, 0, 8), Size = UDim2.new(1, -80, 0, 16), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = opts.Name or "Slider", TextColor3 = lib.Theme.Text, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Parent = Container})
             local ValueLabel = Create("TextLabel", {AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -12, 0, 8), Size = UDim2.new(0, 60, 0, 16), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = tostring(value), TextColor3 = lib.Theme.Accent, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Right, Parent = Container})
             local SliderBG = Create("Frame", {Position = UDim2.new(0, 12, 0, 32), Size = UDim2.new(1, -24, 0, 6), BackgroundColor3 = lib.Theme.Tertiary, Parent = Container})
@@ -520,8 +528,8 @@ function Library:CreateWindow(options)
         
         function Tab:CreateTextBox(opts)
             opts = opts or {}
-            local Container = Create("Frame", {Size = UDim2.new(1, 0, 0, 36), BackgroundColor3 = lib.Theme.Secondary, Parent = Tab.Content})
-            AddCorner(Container, 6)
+            local Container = Create("Frame", {Size = UDim2.new(1, 0, 0, 38), BackgroundColor3 = lib.Theme.Secondary, BackgroundTransparency = lib.Theme.GlassTransparencySecondary, Parent = Tab.Content})
+            AddCorner(Container, 8)
             Create("TextLabel", {Position = UDim2.new(0, 12, 0, 0), Size = UDim2.new(0.4, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = opts.Name or "Input", TextColor3 = lib.Theme.Text, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Parent = Container})
             local InputBG = Create("Frame", {AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -8, 0.5, 0), Size = UDim2.new(0.5, -8, 0, 26), BackgroundColor3 = lib.Theme.Tertiary, Parent = Container})
             AddCorner(InputBG, 4)
@@ -535,8 +543,8 @@ function Library:CreateWindow(options)
             local items = opts.Options or {}
             local selected = opts.Default or (items[1] or "Select...")
             local opened = false
-            local Container = Create("Frame", {Size = UDim2.new(1, 0, 0, 36), BackgroundColor3 = lib.Theme.Secondary, ClipsDescendants = true, Parent = Tab.Content})
-            AddCorner(Container, 6)
+            local Container = Create("Frame", {Size = UDim2.new(1, 0, 0, 38), BackgroundColor3 = lib.Theme.Secondary, BackgroundTransparency = lib.Theme.GlassTransparencySecondary, ClipsDescendants = true, Parent = Tab.Content})
+            AddCorner(Container, 8)
             Create("TextLabel", {Position = UDim2.new(0, 12, 0, 0), Size = UDim2.new(0.4, 0, 0, 36), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = opts.Name or "Dropdown", TextColor3 = lib.Theme.Text, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Parent = Container})
             local DropBG = Create("Frame", {AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -8, 0, 5), Size = UDim2.new(0.5, -8, 0, 26), BackgroundColor3 = lib.Theme.Tertiary, Parent = Container})
             AddCorner(DropBG, 4)
@@ -563,8 +571,8 @@ function Library:CreateWindow(options)
             opts = opts or {}
             local keyCode = opts.Default or Enum.KeyCode.Unknown
             local listening = false
-            local Container = Create("Frame", {Size = UDim2.new(1, 0, 0, 36), BackgroundColor3 = lib.Theme.Secondary, Parent = Tab.Content})
-            AddCorner(Container, 6)
+            local Container = Create("Frame", {Size = UDim2.new(1, 0, 0, 38), BackgroundColor3 = lib.Theme.Secondary, BackgroundTransparency = lib.Theme.GlassTransparencySecondary, Parent = Tab.Content})
+            AddCorner(Container, 8)
             Create("TextLabel", {Position = UDim2.new(0, 12, 0, 0), Size = UDim2.new(0.6, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = opts.Name or "Keybind", TextColor3 = lib.Theme.Text, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Parent = Container})
             local KeyBtn = Create("TextButton", {AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -8, 0.5, 0), Size = UDim2.new(0, 70, 0, 26), BackgroundColor3 = lib.Theme.Tertiary, Font = Enum.Font.GothamMedium, Text = keyCode ~= Enum.KeyCode.Unknown and keyCode.Name or "None", TextColor3 = lib.Theme.Text, TextSize = 11, Parent = Container})
             AddCorner(KeyBtn, 4)
@@ -584,8 +592,8 @@ function Library:CreateWindow(options)
             local color = opts.Default or Color3.fromRGB(0, 255, 136)
             local expanded = false
             local hue, sat, val = Color3.toHSV(color)
-            local Container = Create("Frame", {Size = UDim2.new(1, 0, 0, 36), BackgroundColor3 = lib.Theme.Secondary, ClipsDescendants = true, Parent = Tab.Content})
-            AddCorner(Container, 6)
+            local Container = Create("Frame", {Size = UDim2.new(1, 0, 0, 38), BackgroundColor3 = lib.Theme.Secondary, BackgroundTransparency = lib.Theme.GlassTransparencySecondary, ClipsDescendants = true, Parent = Tab.Content})
+            AddCorner(Container, 8)
             Create("TextLabel", {Position = UDim2.new(0, 12, 0, 0), Size = UDim2.new(0.6, 0, 0, 36), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = opts.Name or "Color", TextColor3 = lib.Theme.Text, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Parent = Container})
             local ColorBtn = Create("TextButton", {AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -8, 0, 18), Size = UDim2.new(0, 50, 0, 22), BackgroundColor3 = color, Text = "", Parent = Container})
             AddCorner(ColorBtn, 4)
@@ -651,22 +659,26 @@ function Library:Notify(options)
     end
     
     local Notif = Create("Frame", {Size = UDim2.new(1, 0, 0, 0), BackgroundColor3 = self.Theme.Background, BackgroundTransparency = 1, ClipsDescendants = true, Parent = NotifContainer})
-    AddCorner(Notif, 8)
+    AddCorner(Notif, 10)
     AddStroke(Notif, self.Theme.Border, 1)
     
-    Create("Frame", {Size = UDim2.new(0, 4, 1, 0), BackgroundColor3 = accentColor, BorderSizePixel = 0, Parent = Notif})
-    Create("TextLabel", {Position = UDim2.new(0, 14, 0, 10), Size = UDim2.new(1, -24, 0, 18), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, Text = title, TextColor3 = self.Theme.Text, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, Parent = Notif})
-    if content ~= "" then Create("TextLabel", {Position = UDim2.new(0, 14, 0, 28), Size = UDim2.new(1, -24, 0, 20), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = content, TextColor3 = self.Theme.TextDim, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true, Parent = Notif}) end
+    -- Accent bar with glow effect
+    local AccentBar = Create("Frame", {Size = UDim2.new(0, 3, 1, 0), BackgroundColor3 = accentColor, BorderSizePixel = 0, Parent = Notif})
+    AddCorner(AccentBar, 2)
     
-    local textHeight = content ~= "" and 20 or 0
-    local totalHeight = 48 + textHeight
+    Create("TextLabel", {Position = UDim2.new(0, 16, 0, 12), Size = UDim2.new(1, -26, 0, 18), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, Text = title, TextColor3 = self.Theme.Text, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, Parent = Notif})
+    if content ~= "" then Create("TextLabel", {Position = UDim2.new(0, 16, 0, 30), Size = UDim2.new(1, -26, 0, 20), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = content, TextColor3 = self.Theme.TextDim, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true, Parent = Notif}) end
     
-    local ProgressBG = Create("Frame", {AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 14, 1, -8), Size = UDim2.new(1, -28, 0, 3), BackgroundColor3 = self.Theme.Tertiary, Parent = Notif})
+    local textHeight = content ~= "" and 22 or 0
+    local totalHeight = 52 + textHeight
+    
+    local ProgressBG = Create("Frame", {AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 16, 1, -10), Size = UDim2.new(1, -32, 0, 3), BackgroundColor3 = self.Theme.Tertiary, BackgroundTransparency = 0.5, Parent = Notif})
     AddCorner(ProgressBG, 2)
     local Progress = Create("Frame", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = accentColor, Parent = ProgressBG})
     AddCorner(Progress, 2)
     
-    Tween(Notif, {Size = UDim2.new(1, 0, 0, totalHeight), BackgroundTransparency = 0}, 0.3)
+    -- Animate with glass transparency
+    Tween(Notif, {Size = UDim2.new(1, 0, 0, totalHeight), BackgroundTransparency = self.Theme.GlassTransparency}, 0.3)
     task.delay(0.3, function() TweenService:Create(Progress, TweenInfo.new(duration, Enum.EasingStyle.Linear), {Size = UDim2.new(0, 0, 1, 0)}):Play() end)
     task.delay(duration + 0.3, function()
         local hideTween = Tween(Notif, {Size = UDim2.new(1, 0, 0, 0), BackgroundTransparency = 1}, 0.3)
