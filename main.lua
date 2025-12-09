@@ -37,7 +37,7 @@ Library.__index = Library
 Library.Windows = {}
 Library.ScreenGui = nil
 Library.Toggled = true
-Library.ToggleKey = Enum.KeyCode.RightShift
+Library.ToggleKey = Enum.KeyCode.RightControl
 
 -- ═══════════════════════════════════════════════════════════════
 -- THEME
@@ -123,9 +123,23 @@ function Library:ToggleUI()
     self.Toggled = not self.Toggled
     for _, window in pairs(self.Windows) do
         if window.Frame then
-            Tween(window.Frame, {
-                Position = self.Toggled and window.OriginalPos or UDim2.new(0.5, 0, 1.5, 0)
-            }, 0.35)
+            if self.Toggled then
+                -- Restore to last position
+                window.Frame.Visible = true
+                Tween(window.Frame, {
+                    Position = window.LastPosition or window.Frame.Position
+                }, 0.35)
+            else
+                -- Save current position and hide
+                window.LastPosition = window.Frame.Position
+                local hidePos = UDim2.new(window.Frame.Position.X.Scale, window.Frame.Position.X.Offset, 1.5, 0)
+                local tween = Tween(window.Frame, {Position = hidePos}, 0.35)
+                tween.Completed:Connect(function()
+                    if not self.Toggled then
+                        window.Frame.Visible = false
+                    end
+                end)
+            end
         end
     end
 end
@@ -150,7 +164,7 @@ function Library:CreateWindow(options)
     
     self:Init()
     
-    local Window = {Tabs = {}, ActiveTab = nil}
+    local Window = {Tabs = {}, ActiveTab = nil, Minimized = false, FullSize = size}
     
     -- Main Frame
     Window.Frame = Create("Frame", {
@@ -257,7 +271,7 @@ function Library:CreateWindow(options)
         if options.CloseCallback then options.CloseCallback() end
     end)
     
-    -- Minimize Button
+    -- Minimize Button (collapse to title bar)
     local MinBtn = Create("TextButton", {
         AnchorPoint = Vector2.new(1, 0.5),
         Position = UDim2.new(1, -42, 0.5, 0),
@@ -272,7 +286,18 @@ function Library:CreateWindow(options)
     AddCorner(MinBtn, 6)
     MinBtn.MouseEnter:Connect(function() Tween(MinBtn, {BackgroundColor3 = self.Theme.Secondary}) end)
     MinBtn.MouseLeave:Connect(function() Tween(MinBtn, {BackgroundColor3 = self.Theme.Tertiary}) end)
-    MinBtn.MouseButton1Click:Connect(function() self:ToggleUI() end)
+    MinBtn.MouseButton1Click:Connect(function()
+        Window.Minimized = not Window.Minimized
+        if Window.Minimized then
+            -- Collapse to title bar only
+            Tween(Window.Frame, {Size = UDim2.new(0, size.X.Offset, 0, 41)}, 0.25)
+            MinBtn.Text = "+"
+        else
+            -- Restore full size
+            Tween(Window.Frame, {Size = Window.FullSize}, 0.25)
+            MinBtn.Text = "−"
+        end
+    end)
     
     -- Divider
     Create("Frame", {
